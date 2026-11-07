@@ -5,9 +5,9 @@ from flask import (Blueprint, flash, g, redirect, render_template, request,
                    url_for)
 
 from config import BASE_DIR, Config
-from .. import db
-from ..models import user as user_model
-from ..runner import process as runner_process
+from core import db
+from core.models import user as user_model
+from core.runner import process as runner_process
 from .auth import login_required
 
 bp = Blueprint("settings", __name__, url_prefix="/settings")

@@ -2,9 +2,9 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
                    url_for)
 
-from ..models import server as server_model
-from ..models import task as task_model
-from ..services import mailer
+from core.models import server as server_model
+from core.models import task as task_model
+from services import mailer
 from .auth import login_required
 
 bp = Blueprint("servers", __name__, url_prefix="/servers")

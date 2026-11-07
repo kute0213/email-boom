@@ -1,10 +1,10 @@
 """JSON 轮询接口（列表 / 详情页自动刷新）。"""
 from flask import Blueprint, request
 
-from ..models import log as log_model
-from ..models import recipient as rcpt_model
-from ..models import task as task_model
-from ..runner import process as runner_process
+from core.models import log as log_model
+from core.models import recipient as rcpt_model
+from core.models import task as task_model
+from core.runner import process as runner_process
 from .auth import login_required
 
 bp = Blueprint("api", __name__, url_prefix="/api")

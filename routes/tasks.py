@@ -10,12 +10,12 @@ from flask import (Blueprint, current_app, flash, redirect, render_template,
 from werkzeug.utils import secure_filename
 
 from config import Config
-from .. import db
-from ..models import log as log_model
-from ..models import recipient as rcpt_model
-from ..models import server as server_model
-from ..models import task as task_model
-from ..services import schedule as schedule_service
+from core import db
+from core.models import log as log_model
+from core.models import recipient as rcpt_model
+from core.models import server as server_model
+from core.models import task as task_model
+from services import schedule as schedule_service
 from .auth import login_required
 
 bp = Blueprint("tasks", __name__)

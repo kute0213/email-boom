@@ -1,7 +1,7 @@
 """调度器守护进程：派发到期任务、崩溃恢复、回收 Worker。
 
 单实例运行（文件锁），由 Web 启动时自动拉起，也可手动运行：
-    python -m emailboom.runner.scheduler
+    python -m core.runner.scheduler
 """
 import fcntl
 import logging
@@ -17,7 +17,7 @@ from ..models import log as log_model
 from ..models import task as task_model
 from .process import pid_alive, spawn_worker
 
-log = logging.getLogger("emailboom.scheduler")
+log = logging.getLogger("core.scheduler")
 
 
 def setup_logging():

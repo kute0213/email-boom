@@ -1,4 +1,4 @@
-"""EmailBoom —— 邮件重复发送系统的应用工厂。"""
+"""EmailBoom —— 应用工厂（模板位于 static/templates，资源零 CDN）。"""
 import atexit
 import hmac
 import secrets
@@ -20,7 +20,7 @@ def _create_csrf_token():
 def create_app(config_object=Config) -> Flask:
     app = Flask(
         __name__,
-        template_folder=str(BASE_DIR / "templates"),
+        template_folder=str(BASE_DIR / "static" / "templates"),
         static_folder=str(BASE_DIR / "static"),
         static_url_path="/static",
     )
@@ -42,7 +42,7 @@ def create_app(config_object=Config) -> Flask:
         return None
 
     # ---- 蓝图 ----
-    from .blueprints import api, auth, servers, settings, tasks
+    from routes import api, auth, servers, settings, tasks
     app.register_blueprint(auth.bp)
     app.register_blueprint(tasks.bp)
     app.register_blueprint(servers.bp)

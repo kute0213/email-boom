@@ -4,7 +4,7 @@ import functools
 from flask import (Blueprint, flash, g, redirect, render_template, request,
                    session, url_for)
 
-from ..models import user as user_model
+from core.models import user as user_model
 
 bp = Blueprint("auth", __name__)
 

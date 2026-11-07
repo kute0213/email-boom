@@ -34,33 +34,33 @@ python app.py                     # http://127.0.0.1:5000
 启动 Web 服务时调度器会自动拉起；即使之后停止 `app.py`，已在运行的调度器与 Worker 仍会继续按计划发送。也可手动管理：
 
 ```bash
-python -m emailboom.runner.scheduler    # 手动启动调度器（文件锁保证单实例）
-python -m emailboom.runner.worker <ID>  # 手动运行某个任务
+python -m core.runner.scheduler    # 手动启动调度器（文件锁保证单实例）
+python -m core.runner.worker <ID>  # 手动运行某个任务
 ```
 
 ## 项目结构
 
 ```
-├── app.py                     # 入口
+├── app.py                     # 入口（调用 core 的应用工厂）
 ├── config.py                  # 配置（密钥/数据库/调度参数）
 ├── requirements.txt
-├── emailboom/
-│   ├── __init__.py            # 应用工厂、CSRF、上下文注入
+├── core/                      # 应用核心
+│   ├── app.py                 # 应用工厂、CSRF、上下文注入
 │   ├── db.py                  # SQLite（WAL + busy_timeout + 线程本地连接）
-│   ├── blueprints/            # auth / tasks / servers / settings / api
 │   ├── models/                # user / server / task / recipient / log
-│   ├── services/
-│   │   ├── mailer.py          # SMTP 发送、Jinja2 渲染、错误分类、退避
-│   │   └── schedule.py        # 自写 5 段 Cron 解析与下次执行计算
 │   └── runner/                # 独立后台进程
 │       ├── scheduler.py       # 调度器守护（flock 单实例、崩溃恢复）
 │       ├── worker.py          # 每任务 Worker（限速/重试/多服务器/控制标志）
 │       └── process.py         # 进程管理（拉起/探测/重启）
-├── templates/                 # Jinja2 模板（base/login/tasks/servers/settings）
+├── routes/                    # Web 蓝图：auth / tasks / servers / settings / api
+├── services/
+│   ├── mailer.py              # SMTP 发送、Jinja2 渲染、错误分类、退避
+│   └── schedule.py            # 自写 5 段 Cron 解析与下次执行计算
 └── static/
     ├── css/                   # fonts / tailwind / base / showcase / app（全本地）
     ├── fonts/                 # 49 个 woff2 字体文件
-    └── js/                    # lucide.min.js（本地全量图标）/ app.js
+    ├── js/                    # lucide.min.js（本地全量图标）/ app.js
+    └── templates/             # Jinja2 模板（base/login/tasks/servers/settings）
 ```
 
 ## 运行机制

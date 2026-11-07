@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """EmailBoom 入口：python app.py"""
-from emailboom import create_app
+from core.app import create_app
 from config import Config
 
 app = create_app()

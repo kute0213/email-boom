@@ -67,7 +67,7 @@ def ensure_scheduler(wait: float = 1.0) -> bool:
     if not Config.AUTO_START_SCHEDULER:
         return False
     Config.DATA_DIR.mkdir(parents=True, exist_ok=True)
-    _spawn([PY, "-m", "emailboom.runner.scheduler"], Config.SCHEDULER_LOG, truncate=True)
+    _spawn([PY, "-m", "core.runner.scheduler"], Config.SCHEDULER_LOG, truncate=True)
     deadline = time.time() + wait
     while time.time() < deadline:
         if scheduler_running():
@@ -104,6 +104,6 @@ def spawn_worker(task_id: int) -> int:
     Config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     log = Config.DATA_DIR / f"worker_{task_id}.log"
     return _spawn(
-        [PY, "-m", "emailboom.runner.worker", str(task_id)],
+        [PY, "-m", "core.runner.worker", str(task_id)],
         log, truncate=True,
     )

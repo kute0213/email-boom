@@ -1,6 +1,6 @@
 """独立 Worker 进程：负责一个任务的全部发送工作。
 
-    python -m emailboom.runner.worker <task_id>
+    python -m core.runner.worker <task_id>
 
 职责：认领任务 → 逐封发送（限速/重试/多服务器切换/小时限流）
     → 更新进度与日志 → 按配置完成收尾（手动完成 / 计算下一次定时）。
@@ -18,8 +18,8 @@ from ..models import log as log_model
 from ..models import recipient as rcpt_model
 from ..models import server as server_model
 from ..models import task as task_model
-from ..services import mailer
-from ..services.schedule import RUN_MODE_HINT, next_run_for
+from services import mailer
+from services.schedule import RUN_MODE_HINT, next_run_for
 
 HB_INTERVAL = 5.0  # 心跳 / 控制检查的最小间隔（秒）
 
@@ -368,7 +368,7 @@ def finalize(task_id: int) -> int:
 def main(argv=None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     if not argv:
-        print("usage: python -m emailboom.runner.worker <task_id>")
+        print("usage: python -m core.runner.worker <task_id>")
         return 2
     try:
         task_id = int(argv[0])
