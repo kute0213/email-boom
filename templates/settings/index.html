@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}系统设置 · {{ app_name }}{% endblock %}
+
+{% block page %}
+<div class="app-shell" style="max-width:960px">
+
+    <div class="page-head">
+        <div>
+            <h1 class="page-title"><i data-lucide="settings"></i>系统设置</h1>
+            <p class="page-sub">账户安全、后台调度器状态与运行环境信息。</p>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('tasks.index') }}" class="btn-secondary"><i data-lucide="arrow-left"></i>返回列表</a>
+        </div>
+    </div>
+
+    {# ===== 修改密码 ===== #}
+    <section class="form-card pixel-card" style="margin-bottom:16px">
+        <h2 class="form-sec-title"><i data-lucide="key-round"></i>修改密码</h2>
+        <p class="form-sec-desc">当前账户：<b>{{ current_user.username }}</b>（管理员）</p>
+        <form method="post" action="{{ url_for('settings.change_password') }}" class="form-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field span-2">
+                <label class="field-label" for="old_password">当前密码</label>
+                <input class="input-field" type="password" id="old_password" name="old_password"
+                       autocomplete="current-password" required>
+            </div>
+            <div class="field">
+                <label class="field-label" for="new_password">新密码</label>
+                <input class="input-field" type="password" id="new_password" name="new_password"
+                       autocomplete="new-password" required minlength="6">
+                <span class="field-hint">至少 6 位字符。</span>
+            </div>
+            <div class="field">
+                <label class="field-label" for="confirm_password">确认新密码</label>
+                <input class="input-field" type="password" id="confirm_password" name="new_password2"
+                       autocomplete="new-password" required minlength="6">
+            </div>
+            <div class="span-2">
+                <button type="submit" class="btn-primary"><i data-lucide="save"></i>更新密码</button>
+            </div>
+        </form>
+    </section>
+
+    {# ===== 后台调度器 ===== #}
+    <section class="form-card pixel-card" style="margin-bottom:16px">
+        <h2 class="form-sec-title"><i data-lucide="cpu"></i>后台调度器</h2>
+        <p class="form-sec-desc">
+            调度器是独立进程：每 2 秒扫描到期任务并拉起 Worker 子进程执行发送。
+            Web 服务（Flask）关闭后，调度器与 Worker 仍会继续按计划运行。
+        </p>
+
+        <div class="kv-grid" style="margin-bottom:16px">
+            <div class="kv">
+                <span class="k">当前状态</span>
+                <span class="v">
+                    <span class="sched-badge" data-scheduler>
+                        <span class="dot" style="width:7px;height:7px;border-radius:50%;background:{{ '#22c55e' if scheduler_alive else '#f43f5e' }}"></span>
+                        {{ '运行中（PID ' ~ info.scheduler_pid ~ '）' if scheduler_alive else '未运行' }}
+                    </span>
+                </span>
+            </div>
+            <div class="kv"><span class="k">数据库</span><span class="v mono">{{ info.db_size }}</span></div>
+            <div class="kv"><span class="k">数据目录</span><span class="v mono" style="word-break:break-all">{{ info.data_dir }}</span></div>
+            <div class="kv"><span class="k">项目目录</span><span class="v mono" style="word-break:break-all">{{ info.base_dir }}</span></div>
+        </div>
+
+        <form method="post" action="{{ url_for('settings.restart_scheduler') }}"
+              style="display:flex;gap:10px;flex-wrap:wrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-primary"><i data-lucide="refresh-cw"></i>{{ '重启调度器' if scheduler_alive else '启动调度器' }}</button>
+            <span class="field-hint" style="align-self:center">重启会优雅退出旧进程，不会中断正在发送的 Worker。</span>
+        </form>
+    </section>
+
+    {# ===== Worker 日志 ===== #}
+    <section class="form-card pixel-card">
+        <h2 class="form-sec-title"><i data-lucide="file-terminal"></i>Worker 日志文件</h2>
+        <p class="form-sec-desc">每个任务的 Worker 独立记录日志，位于 data/ 目录。</p>
+        {% if info.worker_logs %}
+        <div class="showcase-col">
+            {% for f in info.worker_logs %}
+            <div class="showcase-token">
+                <b class="mono">{{ f.name }}</b>
+                <span>{{ f.size }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="field-hint">暂无 Worker 日志，任务首次运行后生成。</p>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}

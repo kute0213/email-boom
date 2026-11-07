@@ -1,0 +1,20 @@
+# 运行数据（数据库/进程锁/附件/密钥/日志）
+data/
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# 上传样本
+.uploads/
+
+# 编辑器/系统
+.DS_Store
+.idea/
+.vscode/
+*.log

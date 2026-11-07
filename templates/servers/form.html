@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ '添加服务器' if creating else '编辑服务器 · ' ~ (server.name or '') }} · {{ app_name }}{% endblock %}
+
+{% block page %}
+{% set s = server or {} %}
+<div class="app-shell" style="max-width:880px">
+
+    <div class="page-head">
+        <div>
+            <h1 class="page-title"><i data-lucide="{{ 'plus-circle' if creating else 'pencil' }}"></i>{{ '添加 SMTP 服务器' if creating else '编辑 SMTP 服务器' }}</h1>
+            <p class="page-sub">保存后自动进行一次连接测试；凭据仅保存在本地 SQLite 数据库中。</p>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('servers.index') }}" class="btn-secondary"><i data-lucide="arrow-left"></i>返回</a>
+        </div>
+    </div>
+
+    <form method="post" class="form-card pixel-card"
+          action="{{ url_for('servers.create') if creating else url_for('servers.edit', server_id=s.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <section class="form-sec">
+            <h2 class="form-sec-title"><i data-lucide="server"></i>连接信息</h2>
+            <p class="form-sec-desc">常见端口：SSL 465 · STARTTLS 587 · 明文 25（仅内网测试）。</p>
+            <div class="form-grid">
+                <div class="field span-2">
+                    <label class="field-label" for="name">服务器名称 <span class="req">*</span></label>
+                    <input class="input-field" type="text" id="name" name="name" required
+                           placeholder="例如：QQ 企业邮 01" value="{{ s.get('name', '') or '' }}">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="host">主机地址 <span class="req">*</span></label>
+                    <input class="input-field mono-area" type="text" id="host" name="host" required
+                           placeholder="smtp.example.com" value="{{ s.get('host', '') or '' }}">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="port">端口 <span class="req">*</span></label>
+                    <input class="input-field" type="number" id="port" name="port" min="1" max="65535"
+                           value="{{ s.get('port', 465) if s.get('port') is not none else 465 }}">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="security">加密方式</label>
+                    <select class="input-field" id="security" name="security">
+                        {% for key, label in SECURITIES.items() %}
+                        <option value="{{ key }}" {{ 'selected' if (s.get('security') or 'ssl') == key else '' }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="timeout_seconds">连接超时（秒）</label>
+                    <input class="input-field" type="number" id="timeout_seconds" name="timeout_seconds" min="1" max="300"
+                           value="{{ s.get('timeout_seconds', 15) if s.get('timeout_seconds') is not none else 15 }}">
+                </div>
+            </div>
+        </section>
+
+        <section class="form-sec">
+            <h2 class="form-sec-title"><i data-lucide="key-round"></i>账号与发件人</h2>
+            <p class="form-sec-desc">多数邮箱要求使用「授权码」而非登录密码。</p>
+            <div class="form-grid">
+                <div class="field">
+                    <label class="field-label" for="username">登录用户名</label>
+                    <input class="input-field" type="text" id="username" name="username" autocomplete="off"
+                           placeholder="通常为完整邮箱地址" value="{{ s.get('username', '') or '' }}">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="password">密码 / 授权码</label>
+                    <input class="input-field" type="password" id="password" name="password" autocomplete="new-password"
+                           placeholder="{{ '留空保持原密码' if not creating else '授权码或密码' }}"
+                           value="">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="from_email">默认发件邮箱</label>
+                    <input class="input-field" type="text" id="from_email" name="from_email"
+                           placeholder="noreply@example.com（可被任务覆盖）" value="{{ s.get('from_email', '') or '' }}">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="from_name">默认发件人名称</label>
+                    <input class="input-field" type="text" id="from_name" name="from_name"
+                           placeholder="例如：客户服务中心" value="{{ s.get('from_name', '') or '' }}">
+                </div>
+            </div>
+        </section>
+
+        <section class="form-sec">
+            <h2 class="form-sec-title"><i data-lucide="sliders-horizontal"></i>调度参数</h2>
+            <div class="form-grid">
+                <div class="field">
+                    <label class="field-label" for="priority">优先级</label>
+                    <input class="input-field" type="number" id="priority" name="priority" min="0" max="1000"
+                           value="{{ s.get('priority', 100) if s.get('priority') is not none else 100 }}">
+                    <span class="field-hint">数字越小越优先；「按优先级」策略下高优先级用尽才降级。</span>
+                </div>
+                <div class="field">
+                    <label class="field-label">启用状态</label>
+                    <label class="switch-line" style="height:40px">
+                        <input type="checkbox" class="switch-input" name="enabled" {{ 'checked' if s.get('enabled', 1) else '' }}>
+                        <span class="switch"></span>
+                        <span>参与任务发送</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <div class="form-sec" style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="submit" class="btn-primary"><i data-lucide="save"></i>{{ '保存并测试' if creating else '保存修改' }}</button>
+            <a href="{{ url_for('servers.index') }}" class="btn-secondary">取消</a>
+        </div>
+    </form>
+
+</div>
+{% endblock %}

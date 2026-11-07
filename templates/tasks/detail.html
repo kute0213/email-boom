@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}{{ task.name }} · 任务详情 · {{ app_name }}{% endblock %}
+
+{% block page %}
+<div class="app-shell" data-poll="detail"
+     data-task-id="{{ task.id }}" data-status="{{ task.status }}"
+     data-log-latest="{{ log_latest }}" data-rcpt-filter="{{ rcpt_filter }}">
+
+    <div class="page-head">
+        <div>
+            <h1 class="page-title"><i data-lucide="send"></i>{{ task.name }}
+                <span class="badge badge-{{ task.status }}" data-role="badge"><span class="dot"></span>{{ STATUS_LABELS.get(task.status, task.status) }}</span>
+            </h1>
+            <p class="page-sub">
+                {% if task.description %}{{ task.description }}{% else %}任务 #{{ task.id }} · 创建于 {{ task.created_at }}{% endif %}
+            </p>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('tasks.index') }}" class="btn-secondary btn-sm"><i data-lucide="arrow-left"></i>列表</a>
+            <a href="{{ url_for('tasks.edit', task_id=task.id) }}" class="btn-secondary btn-sm"><i data-lucide="pencil"></i>编辑配置</a>
+
+            {% if task.status != 'running' %}
+            <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='start') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-primary btn-sm"><i data-lucide="play"></i>运行</button>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='pause') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-secondary btn-sm"><i data-lucide="pause"></i>暂停</button>
+            </form>
+            <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='stop') }}"
+                  data-confirm="确认停止该任务？未发送的收件人将保持待发送状态。">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-danger btn-sm"><i data-lucide="square"></i>停止</button>
+            </form>
+            {% endif %}
+
+            <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='clear_logs') }}"
+                  data-confirm="清空该任务的全部日志？">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-secondary btn-sm"><i data-lucide="eraser"></i>清空日志</button>
+            </form>
+            <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='delete') }}"
+                  data-confirm="确认删除任务「{{ task.name }}」？收件人与日志将一并删除，且不可恢复。">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn-danger btn-sm"><i data-lucide="trash-2"></i>删除</button>
+            </form>
+        </div>
+    </div>
+
+    {# ===== 运行概览 ===== #}
+    <div class="run-hero pixel-card" style="margin-bottom:16px">
+        <div class="rh-top">
+            <div>
+                <div class="showcase-label" style="margin-bottom:4px">本轮进度</div>
+                <div style="font-size:13px;color:var(--text-muted)">
+                    执行方式：<b style="color:var(--text-secondary)">{{ RUN_MODE_LABELS.get(task.run_mode, task.run_mode) }}</b>
+                    {% if task.run_mode == 'cron' and task.cron_expr %} · <code class="inline-code">{{ task.cron_expr }}</code>{% endif %}
+                    {% if task.run_mode == 'interval' %} · 每 {{ task.interval_minutes }} 分钟{% endif %}
+                    {% if task.run_mode == 'once' and task.schedule_at %} · {{ task.schedule_at }}{% endif %}
+                    · 已执行 <b style="color:var(--text-secondary)">{{ task.run_count }}</b> 轮
+                </div>
+            </div>
+            <span class="sched-badge" data-scheduler>
+                <span class="dot" style="width:7px;height:7px;border-radius:50%;background:{{ '#22c55e' if scheduler_alive else '#f43f5e' }}"></span>
+                调度器{{ '运行中' if scheduler_alive else '已停止' }}
+            </span>
+        </div>
+
+        {% set done = (task.sent_count or 0) + (task.failed_count or 0) + (task.skipped_count or 0) %}
+        {% set pct = ((done * 100 / task.total_recipients) | round(1)) if task.total_recipients else 0 %}
+        <div class="progress-lg">
+            <div class="progress-track">
+                <div class="progress-fill" data-role="fill" style="width:{{ pct }}%"></div>
+            </div>
+            <div class="progress-meta">
+                <span data-role="progress-meta-main"><b>{{ pct }}%</b> 已完成</span>
+                <span>共 {{ task.total_recipients or 0 }} 位收件人</span>
+            </div>
+        </div>
+
+        <div class="counts-grid" data-role="counts">
+            <div class="count-box c-total">
+                <div class="cb-n">{{ counts.total }}</div>
+                <div class="cb-l">总收件人</div>
+            </div>
+            <div class="count-box c-pending">
+                <div class="cb-n">{{ counts.pending }}</div>
+                <div class="cb-l">待发送</div>
+            </div>
+            <div class="count-box c-sent">
+                <div class="cb-n">{{ counts.sent }}</div>
+                <div class="cb-l">已发送</div>
+            </div>
+            <div class="count-box c-failed">
+                <div class="cb-n">{{ counts.failed }}</div>
+                <div class="cb-l">失败</div>
+            </div>
+            <div class="count-box c-skipped">
+                <div class="cb-n">{{ counts.skipped }}</div>
+                <div class="cb-l">跳过</div>
+            </div>
+        </div>
+
+        <div class="kv-grid" style="margin-top:18px">
+            <div class="kv"><span class="k">下次运行</span><span class="v mono" data-role="next-run">{{ task.next_run_at or '—' }}</span></div>
+            <div class="kv"><span class="k">上次运行</span><span class="v mono" data-role="last-run">{{ task.last_run_at or '—' }}</span></div>
+            <div class="kv"><span class="k">Worker 心跳</span><span class="v mono" data-role="heartbeat">{{ task.heartbeat_at or '—' }}</span></div>
+            <div class="kv"><span class="k">Worker PID</span><span class="v mono">{{ task.worker_pid or '—' }}</span></div>
+            <div class="kv"><span class="k">崩溃恢复次数</span><span class="v">{{ task.recoveries or 0 }}</span></div>
+            <div class="kv"><span class="k">最近错误</span><span class="v" style="color:#be123c">{{ task.last_error or '无' }}</span></div>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        {# ===== 左列：日志 + 收件人 ===== #}
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+
+            {# 运行日志 #}
+            <section class="pixel-card" style="padding:18px 20px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+                    <h2 class="form-sec-title" style="margin:0"><i data-lucide="terminal"></i>运行日志</h2>
+                    <span class="field-hint">每 2.5 秒自动拉取，仅追加新日志</span>
+                </div>
+                <div class="log-console" id="log-console">
+                    {% for lg in logs %}
+                    <div class="log-line lv-{{ lg.level }}">
+                        <span class="lt">{{ lg.created_at | hhmmss }}</span>
+                        <span class="lv">{{ {'info': 'INFO', 'success': 'OK', 'warn': 'WARN', 'error': 'ERR'}.get(lg.level, 'INFO') }}</span>
+                        <span class="lm">{{ lg.message }}</span>
+                    </div>
+                    {% else %}
+                    <div class="log-empty">暂无日志，任务运行后将实时输出到这里。</div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            {# 收件人明细 #}
+            <section class="pixel-card" style="padding:18px 20px">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+                    <h2 class="form-sec-title" style="margin:0"><i data-lucide="users"></i>收件人明细</h2>
+                    <div class="filter-bar">
+                        <button type="button" class="filter-chip {{ 'active' if not rcpt_filter }}" data-rcpt-filter="">全部<b>{{ counts.total }}</b></button>
+                        <button type="button" class="filter-chip {{ 'active' if rcpt_filter == 'pending' }}" data-rcpt-filter="pending">待发送<b>{{ counts.pending }}</b></button>
+                        <button type="button" class="filter-chip {{ 'active' if rcpt_filter == 'sent' }}" data-rcpt-filter="sent">已发送<b>{{ counts.sent }}</b></button>
+                        <button type="button" class="filter-chip {{ 'active' if rcpt_filter == 'failed' }}" data-rcpt-filter="failed">失败<b>{{ counts.failed }}</b></button>
+                        <button type="button" class="filter-chip {{ 'active' if rcpt_filter == 'skipped' }}" data-rcpt-filter="skipped">跳过<b>{{ counts.skipped }}</b></button>
+                    </div>
+                </div>
+                <div class="table-wrap" style="box-shadow:none;background:transparent;border:none;backdrop-filter:none">
+                    <table class="showcase-table">
+                        <thead>
+                            <tr>
+                                <th>邮箱</th>
+                                <th>姓名</th>
+                                <th>状态</th>
+                                <th style="text-align:center">尝试</th>
+                                <th class="hide-sm">最近错误</th>
+                                <th class="hide-sm">发送时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rcpt-body">
+                            {% for r in recipients %}
+                            <tr>
+                                <td class="mono-td">{{ r.email }}</td>
+                                <td>{{ r.name or '—' }}</td>
+                                <td>
+                                    <span class="rcpt-status s-{{ r.status }}"><span class="sdot"></span>{{ {'pending': '待发送', 'sent': '已发送', 'failed': '失败', 'skipped': '跳过'}.get(r.status, r.status) }}</span>
+                                </td>
+                                <td class="text-center" style="text-align:center">{{ r.attempts or 0 }}</td>
+                                <td class="hide-sm mono-td text-muted" title="{{ r.last_error or '' }}">{{ (r.last_error or '—')[:60] }}</td>
+                                <td class="hide-sm mono-td">{{ r.sent_at or '—' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="6" class="text-center text-muted" style="padding:26px">暂无收件人</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        {# ===== 右列：配置摘要 ===== #}
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+            <section class="pixel-card" style="padding:18px 20px">
+                <h2 class="form-sec-title" style="margin-bottom:14px"><i data-lucide="sliders-horizontal"></i>配置摘要</h2>
+                <div class="kv-grid">
+                    <div class="kv"><span class="k">SMTP 策略</span><span class="v">{{ STRATEGIES.get(task.smtp_strategy, task.smtp_strategy) }}</span></div>
+                    <div class="kv"><span class="k">失败切换阈值</span><span class="v">{{ task.failover_after or '不切换' }} 次</span></div>
+                    <div class="kv"><span class="k">发送间隔</span><span class="v mono">{{ task.send_interval_ms }} ms</span></div>
+                    <div class="kv"><span class="k">随机抖动</span><span class="v mono">{{ task.jitter_ms }} ms</span></div>
+                    <div class="kv"><span class="k">批次</span><span class="v mono">{{ task.batch_size }} 封 / 间隔 {{ task.batch_interval_s }} s</span></div>
+                    <div class="kv"><span class="k">每小时上限</span><span class="v mono">{{ task.hourly_limit or '不限' }}</span></div>
+                    <div class="kv"><span class="k">最大重试</span><span class="v">{{ task.max_retries }} 次</span></div>
+                    <div class="kv"><span class="k">退避方式</span><span class="v">{{ RETRY_BACKOFFS.get(task.retry_backoff, task.retry_backoff) }} · {{ task.retry_backoff_base_s }}s</span></div>
+                    <div class="kv"><span class="k">连接 / 发送超时</span><span class="v mono">{{ task.connect_timeout_s }}s / {{ task.send_timeout_s }}s</span></div>
+                    <div class="kv"><span class="k">5xx 也重试</span><span class="v">{{ '是' if task.retry_permanent else '否' }}</span></div>
+                    <div class="kv"><span class="k">失败率熔断</span><span class="v">{{ task.stop_on_fail_percent ~ '%' if task.stop_on_fail_percent else '关闭' }}</span></div>
+                    <div class="kv"><span class="k">去重</span><span class="v">{{ '开启（跳过已发送）' if task.dedupe else '关闭（每轮全量重发）' }}</span></div>
+                    <div class="kv"><span class="k">任务状态</span><span class="v">{{ '启用' if task.enabled else '停用' }}</span></div>
+                    <div class="kv"><span class="k">抄送 / 密送</span><span class="v" style="word-break:break-all">{{ task.cc or '—' }} / {{ task.bcc or '—' }}</span></div>
+                </div>
+            </section>
+
+            <section class="pixel-card" style="padding:18px 20px">
+                <h2 class="form-sec-title" style="margin-bottom:14px"><i data-lucide="server"></i>关联 SMTP 服务器</h2>
+                <div class="showcase-col">
+                    {% for sid in task.smtp_server_ids %}
+                    {% set s = servers.get(sid) %}
+                    <div class="showcase-token">
+                        <b>{{ s.name if s else '已删除的服务器 #' ~ sid }}</b>
+                        <span>{{ (s.host ~ ':' ~ s.port ~ ' · ' ~ s.security | upper) if s else '请编辑任务重新选择服务器' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="hint-card">该任务未选择任何 SMTP 服务器，请编辑任务进行配置。</div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            {% if task.attachments %}
+            <section class="pixel-card" style="padding:18px 20px">
+                <h2 class="form-sec-title" style="margin-bottom:14px"><i data-lucide="paperclip"></i>附件（{{ task.attachments | length }}）</h2>
+                <div class="showcase-col">
+                    {% for a in task.attachments %}
+                    <div class="showcase-token">
+                        <b style="word-break:break-all">{{ a.name }}</b>
+                        <span>{{ '%.1f' | format(a.size / 1024) }} KB</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,296 @@
+
+/* ===== 内联：本地字体（仅嵌入本页用到的 unicode-range 子集） ===== */
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-000.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-001.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-002.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-003.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-004.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-005.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-006.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-007.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-008.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-009.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-010.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-011.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-012.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-013.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-014.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-015.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-016.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-017.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-018.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-019.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-020.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-021.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-022.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL QingKe HuangYou';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-qingke-huangyou-023.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-000.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-001.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-002.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-003.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-004.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-005.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-006.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-007.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-008.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-009.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-010.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-011.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-012.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-013.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-014.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-015.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-016.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-017.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-018.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-019.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-020.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-021.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-022.woff2) format('woff2');
+@font-face {
+  font-family: 'ZCOOL KuaiLe';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/zcool-kuaile-023.woff2) format('woff2');
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(../fonts/jetbrains-mono-000.woff2) format('woff2');

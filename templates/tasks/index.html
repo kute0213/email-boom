@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}任务列表 · {{ app_name }}{% endblock %}
+
+{% block page %}
+<div class="app-shell">
+
+    <div class="page-head">
+        <div>
+            <h1 class="page-title"><i data-lucide="list-checks"></i>任务列表</h1>
+            <p class="page-sub">全部发送逻辑由独立后台进程执行，关闭浏览器或停止 Web 服务都不影响任务运行。</p>
+        </div>
+        <div class="toolbar">
+            <span class="sched-badge" data-scheduler>
+                <span class="dot" style="width:7px;height:7px;border-radius:50%;background:{{ '#22c55e' if scheduler_alive else '#f43f5e' }}"></span>
+                调度器{{ '运行中' if scheduler_alive else '已停止' }}
+            </span>
+            <a href="{{ url_for('servers.index') }}" class="btn-secondary"><i data-lucide="server"></i>SMTP 服务器</a>
+            <a href="{{ url_for('tasks.create') }}" class="btn-primary"><i data-lucide="plus"></i>新建任务</a>
+        </div>
+    </div>
+
+    {# 顶部统计（JS 每 3 秒刷新） #}
+    <div class="stat-grid">
+        <div class="stat-card pixel-card">
+            <div class="stat-num" data-stat="total">{{ stats.total or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="layers"></i>全部任务</div>
+        </div>
+        <div class="stat-card pixel-card">
+            <div class="stat-num text-success" data-stat="running">{{ stats.running or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="activity"></i>运行中</div>
+        </div>
+        <div class="stat-card pixel-card">
+            <div class="stat-num" data-stat="waiting">{{ stats.waiting or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="clock"></i>等待执行</div>
+        </div>
+        <div class="stat-card pixel-card">
+            <div class="stat-num" data-stat="completed">{{ stats.completed or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="check-circle"></i>已完成</div>
+        </div>
+        <div class="stat-card pixel-card">
+            <div class="stat-num text-success" data-stat="sent">{{ stats.sent or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="mail-check"></i>累计发送</div>
+        </div>
+        <div class="stat-card pixel-card">
+            <div class="stat-num text-danger" data-stat="failed">{{ stats.failed or 0 }}</div>
+            <div class="stat-cap"><i data-lucide="mail-x"></i>累计失败</div>
+        </div>
+    </div>
+
+    {# 任务表格（JS 轮询刷新行内状态） #}
+    <div class="table-wrap" data-poll="list">
+        {% if tasks %}
+        <table class="showcase-table">
+            <thead>
+                <tr>
+                    <th style="width:26%">任务</th>
+                    <th style="width:110px">状态</th>
+                    <th style="width:20%">进度</th>
+                    <th style="width:120px">执行方式</th>
+                    <th style="width:145px">下次运行</th>
+                    <th style="width:170px; text-align:right">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tasks %}
+                {% set done = (t.sent_count or 0) + (t.failed_count or 0) + (t.skipped_count or 0) %}
+                {% set pct = ((done * 100 / t.total_recipients) | round(1)) if t.total_recipients else 0 %}
+                <tr data-task-id="{{ t.id }}">
+                    <td>
+                        <a href="{{ url_for('tasks.detail', task_id=t.id) }}"
+                           style="font-weight:600;color:var(--text-primary);text-decoration:none">
+                            {{ t.name }}
+                        </a>
+                        {% if not t.enabled %}<span class="badge badge-off" style="margin-left:6px"><span class="dot"></span>已停用</span>{% endif %}
+                        {% if t.description %}
+                        <div class="field-hint" style="margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px">{{ t.description }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-{{ t.status }}" data-role="badge"><span class="dot"></span>{{ STATUS_LABELS.get(t.status, t.status) }}</span>
+                    </td>
+                    <td>
+                        <div class="mini-progress">
+                            <div class="progress-track" style="height:7px">
+                                <div class="progress-fill" data-role="fill" style="width:{{ pct }}%"></div>
+                            </div>
+                            <div class="meta">
+                                <span data-role="progress-meta"><b>{{ t.sent_count or 0 }}</b> / {{ t.total_recipients or 0 }}{% if t.failed_count %} · <span class="text-danger">失败 {{ t.failed_count }}</span>{% endif %}</span>
+                                <span data-role="percent">{{ pct }}%</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="chip"><i data-lucide="calendar-clock"></i>{{ RUN_MODE_LABELS.get(t.run_mode, t.run_mode) }}</span>
+                    </td>
+                    <td class="mono-td" data-role="next-run">{{ t.next_run_at or ('进行中' if t.status == 'running' else '—') }}</td>
+                    <td>
+                        <div class="cell-actions">
+                            {% if t.status not in ('running',) %}
+                            <form method="post" action="{{ url_for('tasks.action', task_id=t.id, action='start') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="next" value="{{ url_for('tasks.index') }}">
+                                <button type="submit" class="btn-primary btn-xs"><i data-lucide="play"></i>运行</button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{{ url_for('tasks.action', task_id=t.id, action='pause') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="next" value="{{ url_for('tasks.index') }}">
+                                <button type="submit" class="btn-secondary btn-xs"><i data-lucide="pause"></i>暂停</button>
+                            </form>
+                            <form method="post" action="{{ url_for('tasks.action', task_id=t.id, action='stop') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="next" value="{{ url_for('tasks.index') }}">
+                                <button type="submit" class="btn-danger btn-xs"><i data-lucide="square"></i>停止</button>
+                            </form>
+                            {% endif %}
+                            <a href="{{ url_for('tasks.detail', task_id=t.id) }}" class="btn-secondary btn-xs"><i data-lucide="eye"></i>详情</a>
+                            <a href="{{ url_for('tasks.edit', task_id=t.id) }}" class="btn-secondary btn-xs"><i data-lucide="pencil"></i>编辑</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i data-lucide="inbox"></i>
+            <div class="es-title">还没有任务</div>
+            <div class="es-sub">创建第一个邮件发送任务，配置 SMTP 服务器、收件人与发送速度。</div>
+            <a href="{{ url_for('tasks.create') }}" class="btn-primary"><i data-lucide="plus"></i>新建任务</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

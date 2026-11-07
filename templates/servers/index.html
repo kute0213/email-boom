@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}SMTP 服务器 · {{ app_name }}{% endblock %}
+
+{% block page %}
+<div class="app-shell">
+
+    <div class="page-head">
+        <div>
+            <h1 class="page-title"><i data-lucide="server"></i>SMTP 服务器</h1>
+            <p class="page-sub">可配置多个发信服务器；任务中按轮询 / 随机 / 优先级 / 固定顺序策略使用，认证失败自动跳过。</p>
+        </div>
+        <div class="toolbar">
+            <a href="{{ url_for('tasks.index') }}" class="btn-secondary"><i data-lucide="list-checks"></i>任务列表</a>
+            <a href="{{ url_for('servers.create') }}" class="btn-primary"><i data-lucide="plus"></i>添加服务器</a>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        {% if servers %}
+        <table class="showcase-table">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>地址</th>
+                    <th>加密</th>
+                    <th>默认发件人</th>
+                    <th style="text-align:center">优先级</th>
+                    <th style="text-align:center">被引用</th>
+                    <th>最近测试</th>
+                    <th style="width:200px; text-align:right">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in servers %}
+                <tr>
+                    <td>
+                        <span style="font-weight:600">{{ s.name }}</span>
+                        {% if not s.enabled %}<span class="badge badge-off" style="margin-left:6px"><span class="dot"></span>已停用</span>{% endif %}
+                        {% if s.username %}
+                        <div class="field-hint" style="margin-top:3px">{{ s.username }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="mono-td">{{ s.host }}:{{ s.port }}</td>
+                    <td><span class="chip">{{ s.security | upper }}</span></td>
+                    <td class="mono-td">{{ s.from_email or '—' }}{% if s.from_name %}（{{ s.from_name }}）{% endif %}</td>
+                    <td style="text-align:center" class="mono-td">{{ s.priority }}</td>
+                    <td style="text-align:center">
+                        <span class="chip">{{ usage.get(s.id, 0) }} 个任务</span>
+                    </td>
+                    <td>
+                        {% if s.last_test_ok is none %}
+                        <span class="text-muted" style="font-size:12px">未测试</span>
+                        {% elif s.last_test_ok %}
+                        <span class="rcpt-status s-sent"><span class="sdot"></span>成功</span>
+                        <div class="field-hint" style="margin-top:3px">{{ s.last_test_at }}</div>
+                        {% else %}
+                        <span class="rcpt-status s-failed" title="{{ s.last_test_msg }}"><span class="sdot"></span>失败</span>
+                        <div class="field-hint" style="margin-top:3px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.last_test_msg }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="cell-actions">
+                            <form method="post" action="{{ url_for('servers.test', server_id=s.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-secondary btn-xs"><i data-lucide="plug-zap"></i>测试</button>
+                            </form>
+                            <a href="{{ url_for('servers.edit', server_id=s.id) }}" class="btn-secondary btn-xs"><i data-lucide="pencil"></i>编辑</a>
+                            <form method="post" action="{{ url_for('servers.delete', server_id=s.id) }}"
+                                  data-confirm="确认删除服务器「{{ s.name }}」？">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-danger btn-xs"><i data-lucide="trash-2"></i>删除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i data-lucide="server"></i>
+            <div class="es-title">还没有 SMTP 服务器</div>
+            <div class="es-sub">添加发信服务器（如 QQ 邮箱、163、Gmail 或自建 Postfix），任务才能发送邮件。</div>
+            <a href="{{ url_for('servers.create') }}" class="btn-primary"><i data-lucide="plus"></i>添加服务器</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

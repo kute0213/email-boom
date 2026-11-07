@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}登录 · {{ app_name }}{% endblock %}
+
+{% block page %}
+<div class="login-page">
+    <div class="login-card pixel-card">
+        <div class="login-brand">
+            <span class="lb-mark"><i data-lucide="send"></i></span>
+            <h1>{{ app_name }}</h1>
+            <p>邮件重复发送系统 · 管理控制台</p>
+        </div>
+
+        <form method="post" action="{{ url_for('auth.login', next=request.args.get('next', '')) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field" style="margin-bottom:14px">
+                <label class="field-label" for="username"><i data-lucide="user"></i>用户名</label>
+                <input class="input-field" type="text" id="username" name="username"
+                       placeholder="请输入用户名" autocomplete="username" required autofocus>
+            </div>
+            <div class="field" style="margin-bottom:20px">
+                <label class="field-label" for="password"><i data-lucide="lock"></i>密码</label>
+                <input class="input-field" type="password" id="password" name="password"
+                       placeholder="请输入密码" autocomplete="current-password" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%">
+                <i data-lucide="log-in"></i> 登录
+            </button>
+        </form>
+
+        {% if error %}
+        <p class="field-hint" style="margin-top:14px;color:#be123c;text-align:center">{{ error }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
