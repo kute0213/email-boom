@@ -215,7 +215,7 @@
         var logConsole = $('#log-console');
         var rcptBody = $('#rcpt-body');
         var rcptFilter = root.getAttribute('data-rcpt-filter') || '';
-        var reloadCountdown = -1;
+        var csrfToken = root.getAttribute('data-csrf') || '';
         var ticks = 0;
 
         function scrollLogs(force) {
@@ -250,11 +250,29 @@
 
             if (s.status !== lastStatus) {
                 lastStatus = s.status;
-                if (reloadCountdown < 0) {
-                    // 状态刚变化：1.2 秒后刷新页面以同步按钮/说明（避免抖动，只刷一次）
-                    reloadCountdown = setTimeout(function () { location.reload(); }, 1200);
-                }
+                renderActions(s.status);
             }
+        }
+
+        /* 运行/暂停/停止按钮就地更新，避免状态变化时整页刷新 */
+        function renderActions(status) {
+            var box = $('[data-role="actions"]', root);
+            if (!box) return;
+            function form(action, cls, icon, label, confirmMsg) {
+                return '<form method="post" action="/tasks/' + taskId + '/' + action + '"' +
+                    (confirmMsg ? ' data-confirm="' + confirmMsg + '"' : '') + '>' +
+                    '<input type="hidden" name="csrf_token" value="' + csrfToken + '">' +
+                    '<button type="submit" class="' + cls + '"><i data-lucide="' + icon + '"></i>' + label + '</button>' +
+                    '</form>';
+            }
+            if (status === 'running') {
+                box.innerHTML =
+                    form('pause', 'btn-secondary btn-sm', 'pause', '暂停', '') +
+                    form('stop', 'btn-danger btn-sm', 'square', '停止', '确认停止该任务？未发送的收件人将保持待发送状态。');
+            } else {
+                box.innerHTML = form('start', 'btn-primary btn-sm', 'play', '运行', '');
+            }
+            renderIcons(box);
         }
 
         function applyLogs(payload) {
@@ -362,6 +380,99 @@
         // 表单内任何文件选择都自动提交（服务器测试页快捷用法）——不做，保持显式提交
     }
 
+    /* ---------- 富文本编辑器（本地实现，无第三方依赖） ---------- */
+    function initRichEditor() {
+        $all('[data-rte]').forEach(function (wrap) {
+            var body = $('[data-rte-body]', wrap);
+            var ta = $('textarea', wrap);
+            if (!body || !ta) return;
+
+            var sourceBtn = $('[data-rte-source]', wrap);
+            var sourceMode = false;
+            body.innerHTML = ta.value;
+
+            function sync() { ta.value = body.innerHTML; }
+
+            // 保持 contenteditable 的选区：按下工具栏按钮时不抢焦点
+            var toolbar = $('.rte-toolbar', wrap);
+            if (toolbar) {
+                toolbar.addEventListener('mousedown', function (e) {
+                    if (e.target.closest('button')) e.preventDefault();
+                });
+                toolbar.addEventListener('click', function (e) {
+                    var btn = e.target.closest('button');
+                    if (!btn) return;
+                    if (btn.hasAttribute('data-rte-source')) return;
+                    e.preventDefault();
+                    if (sourceMode) return;
+
+                    body.focus();
+                    var cmd = btn.getAttribute('data-cmd');
+                    var block = btn.getAttribute('data-block');
+                    var variable = btn.getAttribute('data-var');
+                    var link = btn.getAttribute('data-link');
+
+                    if (cmd) {
+                        document.execCommand(cmd, false, null);
+                    } else if (block) {
+                        document.execCommand('formatBlock', false, block);
+                    } else if (variable) {
+                        document.execCommand('insertText', false, variable);
+                    } else if (link) {
+                        var href = window.prompt('请输入链接地址（含 https://）', 'https://');
+                        if (href) document.execCommand('createLink', false, href);
+                    }
+                    sync();
+                    refreshActive();
+                });
+            }
+
+            function refreshActive() {
+                if (!toolbar) return;
+                $all('[data-cmd]', toolbar).forEach(function (btn) {
+                    var cmd = btn.getAttribute('data-cmd');
+                    var on = false;
+                    try { on = document.queryCommandState(cmd); } catch (err) { on = false; }
+                    btn.classList.toggle('active', !!on);
+                });
+            }
+            body.addEventListener('input', sync);
+            body.addEventListener('blur', sync);
+            body.addEventListener('keyup', refreshActive);
+            body.addEventListener('mouseup', refreshActive);
+
+            // 源码模式切换
+            if (sourceBtn) {
+                sourceBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    sourceMode = !sourceMode;
+                    if (sourceMode) {
+                        sync();
+                        ta.hidden = false;
+                        body.style.display = 'none';
+                    } else {
+                        body.innerHTML = ta.value;
+                        ta.hidden = true;
+                        body.style.display = '';
+                    }
+                    sourceBtn.classList.toggle('active', sourceMode);
+                    sourceBtn.innerHTML = sourceMode
+                        ? '<i data-lucide="eye"></i><span>预览</span>'
+                        : '<i data-lucide="code-2"></i><span>源码</span>';
+                    renderIcons(sourceBtn);
+                });
+            }
+
+            // 提交前兜底同步
+            var form = wrap.closest('form');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    if (!sourceMode) sync();
+                });
+            }
+        });
+    }
+
     /* ---------- 收件人状态过滤（详情页跳转参数） ---------- */
     function initRcptFilter() {
         $all('[data-rcpt-filter]').forEach(function (chip) {
@@ -383,6 +494,7 @@
         initConfirm();
         initModals();
         initFormHelpers();
+        initRichEditor();
         initRcptFilter();
         initListPolling();
         initDetailPolling();

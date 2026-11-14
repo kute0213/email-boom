@@ -523,3 +523,80 @@ select.input-field {
 .rcpt-status.s-sent { color: #15803d; } .rcpt-status.s-sent .sdot { background: #22c55e; }
 .rcpt-status.s-failed { color: #be123c; } .rcpt-status.s-failed .sdot { background: #f43f5e; }
 .rcpt-status.s-skipped { color: #b45309; } .rcpt-status.s-skipped .sdot { background: #f59e0b; }
+
+/* ===== 富文本编辑器（本地实现） ===== */
+.rte {
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+}
+.rte-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(248, 250, 252, 0.92);
+}
+.rte-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.rte-btn:hover { background: rgba(15, 23, 42, 0.06); color: var(--text-primary); }
+.rte-btn.active { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
+.rte-btn svg { width: 16px; height: 16px; }
+.rte-btn span { line-height: 1; }
+.rte-sep { width: 1px; height: 18px; margin: 0 4px; background: var(--border-subtle); }
+.rte-spacer { flex: 1; }
+.rte-source-btn { border: 1px solid var(--border-subtle); background: #fff; }
+
+.rte-body {
+    min-height: 220px;
+    max-height: 560px;
+    overflow: auto;
+    padding: 14px 16px;
+    outline: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.75;
+    word-break: break-word;
+}
+.rte-body:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+.rte-body h2 { font-size: 20px; font-weight: 700; margin: 4px 0 10px; }
+.rte-body h3 { font-size: 16px; font-weight: 700; margin: 4px 0 8px; }
+.rte-body p { margin: 0 0 10px; }
+.rte-body ul, .rte-body ol { margin: 0 0 10px; padding-left: 22px; }
+.rte-body li { margin: 2px 0; }
+.rte-body blockquote {
+    margin: 0 0 10px;
+    padding: 2px 0 2px 12px;
+    border-left: 3px solid #cbd5e1;
+    color: var(--text-muted);
+}
+.rte-body a { color: #0f766e; text-decoration: underline; }
+.rte-body img { max-width: 100%; height: auto; }
+
+textarea.rte-source {
+    border: none;
+    border-radius: 0;
+    min-height: 260px;
+    background: #fbfdfe;
+}

@@ -4,6 +4,7 @@
 {% block page %}
 <div class="app-shell" data-poll="detail"
      data-task-id="{{ task.id }}" data-status="{{ task.status }}"
+     data-csrf="{{ csrf_token() }}"
      data-log-latest="{{ log_latest }}" data-rcpt-filter="{{ rcpt_filter }}">
 
     <div class="page-head">
@@ -19,6 +20,7 @@
             <a href="{{ url_for('tasks.index') }}" class="btn-secondary btn-sm"><i data-lucide="arrow-left"></i>列表</a>
             <a href="{{ url_for('tasks.edit', task_id=task.id) }}" class="btn-secondary btn-sm"><i data-lucide="pencil"></i>编辑配置</a>
 
+            <span data-role="actions" style="display:contents">
             {% if task.status != 'running' %}
             <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='start') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -35,6 +37,7 @@
                 <button type="submit" class="btn-danger btn-sm"><i data-lucide="square"></i>停止</button>
             </form>
             {% endif %}
+            </span>
 
             <form method="post" action="{{ url_for('tasks.action', task_id=task.id, action='clear_logs') }}"
                   data-confirm="清空该任务的全部日志？">

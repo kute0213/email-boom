@@ -73,8 +73,34 @@
                 </div>
                 <div class="field span-2">
                     <label class="field-label" for="body_html">HTML 正文</label>
-                    <textarea class="textarea-field mono-area" id="body_html" name="body_html" rows="10"
-                              placeholder="<h1>你好，{{ '{{ name }}' }}</h1><p>内容…</p>">{{ t.get('body_html', '') or '' }}</textarea>
+                    <div class="rte" data-rte>
+                        <div class="rte-toolbar" role="toolbar" aria-label="正文格式">
+                            <button type="button" class="rte-btn" data-cmd="bold" title="加粗"><i data-lucide="bold"></i></button>
+                            <button type="button" class="rte-btn" data-cmd="italic" title="斜体"><i data-lucide="italic"></i></button>
+                            <button type="button" class="rte-btn" data-cmd="underline" title="下划线"><i data-lucide="underline"></i></button>
+                            <button type="button" class="rte-btn" data-cmd="strikeThrough" title="删除线"><i data-lucide="strikethrough"></i></button>
+                            <span class="rte-sep"></span>
+                            <button type="button" class="rte-btn" data-block="H2" title="大标题"><i data-lucide="heading-2"></i></button>
+                            <button type="button" class="rte-btn" data-block="H3" title="小标题"><i data-lucide="heading-3"></i></button>
+                            <button type="button" class="rte-btn" data-block="P" title="正文段落"><i data-lucide="pilcrow"></i></button>
+                            <button type="button" class="rte-btn" data-block="BLOCKQUOTE" title="引用"><i data-lucide="quote"></i></button>
+                            <span class="rte-sep"></span>
+                            <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="无序列表"><i data-lucide="list"></i></button>
+                            <button type="button" class="rte-btn" data-cmd="insertOrderedList" title="有序列表"><i data-lucide="list-ordered"></i></button>
+                            <button type="button" class="rte-btn" data-link="1" title="插入链接"><i data-lucide="link"></i></button>
+                            <button type="button" class="rte-btn" data-cmd="removeFormat" title="清除格式"><i data-lucide="remove-formatting"></i></button>
+                            <span class="rte-sep"></span>
+                            <button type="button" class="rte-btn rte-var" data-var="{{ '{{ name }}' }}" title="插入收件人姓名变量"><i data-lucide="user"></i><span>姓名</span></button>
+                            <button type="button" class="rte-btn rte-var" data-var="{{ '{{ email }}' }}" title="插入收件人邮箱变量"><i data-lucide="at-sign"></i><span>邮箱</span></button>
+                            <span class="rte-spacer"></span>
+                            <button type="button" class="rte-btn rte-source-btn" data-rte-source title="切换 HTML 源码"><i data-lucide="code-2"></i><span>源码</span></button>
+                        </div>
+                        <div class="rte-body" contenteditable="true" data-rte-body
+                             data-placeholder="在这里撰写邮件正文，可使用工具栏排版，或点击「源码」直接编辑 HTML"></div>
+                        <textarea class="textarea-field mono-area rte-source" id="body_html" name="body_html" rows="12"
+                                  hidden>{{ t.get('body_html', '') or '' }}</textarea>
+                    </div>
+                    <span class="field-hint">工具栏即时生效；点击「源码」在所见即所得与 HTML 之间切换。</span>
                 </div>
                 <div class="field span-2">
                     <label class="field-label" for="body_text">纯文本正文（退化兜底）</label>
